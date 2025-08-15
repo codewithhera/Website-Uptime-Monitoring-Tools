@@ -6,10 +6,7 @@ A high-performance website uptime monitoring tool built with Go and Beego framew
 
 ## 🚀 Project Preview
 
-<video width="100%" controls poster="">
-  <source src="website_uptime_monitoring_tools.mp4" type="video/mp4">
-  Your browser does not support the video tag. [Download video](website_uptime_monitoring_tools.mp4)
-</video>
+[![Project Preview](https://img.youtube.com/vi/NWNAzeHcSlM/0.jpg)](https://youtu.be/NWNAzeHcSlM)
 
 ---
 
