@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uptime Monitor</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <div class="logo">
+            <!-- Logo removed as per request -->
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-secondary" onclick="showStatusPage()">
+            <i class="fas fa-chart-line"></i> Status Page
+          </button>
+          <button class="btn btn-primary" onclick="showDashboard()">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </button>
+          <button class="btn btn-secondary">
+            <i class="fas fa-cog"></i> Settings
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <button
+              class="btn btn-success btn-add"
+              onclick="showAddMonitorModal()"
+            >
+              <i class="fas fa-plus"></i> Add New Monitor
+            </button>
+          </div>
+
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              id="searchInput"
+              onkeyup="filterWebsites()"
+            />
+          </div>
+
+          <div class="website-list-container">
+            <!-- This container will be scrollable -->
+            <div class="website-list" id="websiteList">
+              <!-- Website items will be populated here -->
+            </div>
+          </div>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="content">
+          <div class="content-header">
+            <h1 id="selectedWebsiteName">Select a website</h1>
+            <div
+              class="content-actions"
+              id="contentActions"
+              style="display: none"
+            >
+              <button class="btn btn-secondary" onclick="pauseWebsite()">
+                <i class="fas fa-pause"></i> Pause
+              </button>
+              <button class="btn btn-secondary" onclick="editWebsite()">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-danger" onclick="deleteWebsite()">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="website-details"
+            id="websiteDetails"
+            style="display: none"
+          >
+            <div class="website-url">
+              <a href="#" id="websiteUrl" target="_blank"
+                >https://example.com</a
+              >
+            </div>
+
+            <!-- Status Indicators -->
+            <div class="status-indicators">
+              <div class="status-bar" id="statusBar">
+                <!-- Status dots will be populated here -->
+              </div>
+              <div class="status-info">
+                <span
+                  >Check every <span id="checkInterval">60</span> seconds.</span
+                >
+              </div>
+              <div class="current-status">
+                <span class="status-badge" id="currentStatus">Up</span>
+              </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="metrics">
+              <div class="metric">
+                <div class="metric-label">Response</div>
+                <div class="metric-sublabel">(Current)</div>
+                <div class="metric-value" id="currentResponse">271 ms</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Avg. Response</div>
+                <div class="metric-sublabel">(24-hour)</div>
+                <div class="metric-value" id="avgResponse">138 ms</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Uptime</div>
+                <div class="metric-sublabel">(24-hour)</div>
+                <div class="metric-value" id="uptime24h">100%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Uptime</div>
+                <div class="metric-sublabel">(30-day)</div>
+                <div class="metric-value" id="uptime30d">100%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Cert Exp.</div>
+                <div class="metric-sublabel">(2022-06-25)</div>
+                <div class="metric-value" id="certExp">258 days</div>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+              <canvas id="responseChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Welcome Message -->
+          <div class="welcome-message" id="welcomeMessage">
+            <div class="welcome-content">
+              <i class="fas fa-heartbeat welcome-icon"></i>
+              <h2>Welcome to Uptime Monitor</h2>
+              <p>
+                Select a website from the sidebar to view its monitoring
+                details, or add a new monitor to get started.
+              </p>
+              <button class="btn btn-primary" onclick="showAddMonitorModal()">
+                <i class="fas fa-plus"></i> Add Your First Monitor
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Monitor Modal -->
+    <div class="modal" id="addMonitorModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Monitor</h3>
+          <button class="modal-close" onclick="hideAddMonitorModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addMonitorForm">
+            <div class="form-group">
+              <label for="websiteName">Website Name</label>
+              <input type="text" id="websiteName" required />
+            </div>
+            <div class="form-group">
+              <label for="websiteURL">Website URL</label>
+              <input
+                type="url"
+                id="websiteURL"
+                placeholder="https://example.com"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="checkInterval">Check Interval (seconds)</label>
+              <input
+                type="number"
+                id="checkIntervalInput"
+                min="30"
+                value="60"
+              />
+            </div>
+            <div class="form-group">
+              <label for="notificationEmails"
+                >Notification Emails (comma-separated)</label
+              >
+              <input
+                type="text"
+                id="notificationEmails"
+                placeholder="admin@example.com, user@example.com"
+              />
+            </div>
+            <div class="form-group">
+              <label for="slackWebhook">Slack Webhook URL</label>
+              <input
+                type="url"
+                id="slackWebhook"
+                placeholder="https://hooks.slack.com/services/..."
+              />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="hideAddMonitorModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="addMonitor()">
+            Add Monitor
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Monitor Modal -->
+    <div class="modal" id="editMonitorModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Monitor</h3>
+          <button class="modal-close" onclick="hideEditMonitorModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editMonitorForm">
+            <div class="form-group">
+              <label for="editWebsiteName">Website Name</label>
+              <input type="text" id="editWebsiteName" required />
+            </div>
+            <div class="form-group">
+              <label for="editWebsiteURL">Website URL</label>
+              <input type="url" id="editWebsiteURL" required />
+            </div>
+            <div class="form-group">
+              <label for="editCheckInterval">Check Interval (seconds)</label>
+              <input type="number" id="editCheckInterval" min="30" />
+            </div>
+            <div class="form-group">
+              <label for="editNotificationEmails"
+                >Notification Emails (comma-separated)</label
+              >
+              <input type="text" id="editNotificationEmails" />
+            </div>
+            <div class="form-group">
+              <label for="editSlackWebhook">Slack Webhook URL</label>
+              <input type="url" id="editSlackWebhook" />
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="editEnabled" /> Enabled
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="hideEditMonitorModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="updateMonitor()">
+            Update Monitor
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </body>
+</html>
